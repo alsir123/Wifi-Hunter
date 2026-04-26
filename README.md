@@ -84,4 +84,4 @@ sudo apt install python3 && sudo apt install git && git clone https://github.com
 <p align="center"> © 2021 Dark Hunter 141, all rights reserved. </p>
 <p align="center">
 https://darkhunter141.live
-</p>
+</p> 
