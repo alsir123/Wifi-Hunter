@@ -1,5 +1,7 @@
 import os
 from banner import banners
+
+
 def option(option_name, option_no):
     custom_option = f"\n\033[91m [\033[00m{option_no}\033[91m] \033[93m{option_name}"
     print(custom_option)
@@ -59,7 +61,8 @@ def choice_intall_tools():
         print('\033[00m run sudo main.py\n\n\n')
 
 
-banners()
-menu()
-print("\n\033[91m[\033[00m*\033[91m]\033[91m Install all tools (y/n) ")
-choice_intall_tools()
+if __name__ == "__main__":
+    banners()
+    menu()
+    print("\n\033[91m[\033[00m*\033[91m]\033[91m Install all tools (y/n) ")
+    choice_intall_tools()

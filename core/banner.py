@@ -1,7 +1,6 @@
-class banners :
-    import os
-    os.system("clear")
-    banner = '''
+import os
+
+banner = '''
      _       ___ _____    __  __            __           
     | |     / (_) __(_)  / / / /_  ______  / /____  _____
     | | /| / / / /_/ /  / /_/ / / / / __ \/ __/ _ \/ ___/
@@ -10,7 +9,14 @@ class banners :
                                                 
                     \033[00mAuthor : Team Dark Hunter 141
                     \033[00mVersion: 1.0'''
-    print("\033[92m"+banner)
-    print("")
-    print("\033[94m"+"_"*55)
 
+
+def banners():
+    os.system("clear")
+    print("\033[92m" + banner)
+    print("")
+    print("\033[94m" + "_" * 55)
+
+
+if __name__ == "__main__":
+    banners()
