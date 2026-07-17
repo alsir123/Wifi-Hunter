@@ -1,8 +1,12 @@
 import requests,os
 os.system("clear")
 database_url = "https://raw.githubusercontent.com/darkhunter141/Database/main/wifihunter_update_value.json"
-version_name = requests.get(database_url).json()
-v_code = version_name["version"]
+try:
+    version_name = requests.get(database_url, timeout=10).json()
+    v_code = version_name["version"]
+except (requests.RequestException, ValueError, KeyError):
+    print("\033[91m[!] Could not check for updates (network error).\033[00m")
+    raise SystemExit(1)
 print("\033[91m[\033[00m*\033[91m] Checking tools version....\n\033[00m")
 with open("version") as version_hunter :
     this_version = int(version_hunter.readline())
