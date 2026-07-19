@@ -21,6 +21,9 @@ client = TelegramClient(session_name, api_id, api_hash)
 afk = {"active": False, "reason": "", "since": 0.0}
 # Users we've already auto-replied to during the current AFK period
 replied = set()
+# IDs of messages the userbot itself sent as auto-replies, so the outgoing
+# handler doesn't mistake them for genuine user activity
+own_replies = set()
 
 
 def _afk_duration() -> str:
@@ -49,6 +52,9 @@ async def set_afk(event):
 
 @client.on(events.NewMessage(outgoing=True))
 async def clear_afk_on_activity(event):
+    if event.id in own_replies:
+        own_replies.discard(event.id)
+        return
     text = event.raw_text or ""
     if text.startswith(".afk"):
         return
@@ -74,7 +80,8 @@ async def auto_reply(event):
     reply = f"I'm currently away (AFK for {_afk_duration()}). I'll reply as soon as I'm back."
     if afk["reason"]:
         reply += f"\nReason: {afk['reason']}"
-    await event.reply(reply)
+    sent = await event.reply(reply)
+    own_replies.add(sent.id)
 
 
 def main() -> None:
