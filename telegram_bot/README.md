@@ -37,3 +37,34 @@ that responds to commands.
    ```
 
 The bot uses long polling, so no public URL or webhook setup is required.
+
+## Userbot (auto-reply / AFK)
+
+`userbot.py` runs on **your own Telegram account** (via [Telethon](https://docs.telethon.dev/))
+and auto-replies to private messages while you're away.
+
+### Commands (send from your own account)
+
+- `.afk [reason]` — enable AFK; while active, each person who DMs you gets a
+  single auto-reply. Optional reason is included in the reply.
+- Sending any other message turns AFK off automatically.
+
+### Setup
+
+1. Get `api_id` and `api_hash` from [my.telegram.org](https://my.telegram.org).
+2. Install dependencies (`pip install -r requirements.txt`).
+3. Set credentials:
+
+   ```bash
+   export TELEGRAM_API_ID="1234567"
+   export TELEGRAM_API_HASH="your-api-hash"
+   ```
+
+4. Run and log in (first run asks for your phone number + code, and 2FA
+   password if enabled):
+
+   ```bash
+   python3 userbot.py
+   ```
+
+The login is saved to a local `userbot.session` file, so you only log in once.
