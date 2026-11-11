@@ -1,95 +1,80 @@
 import os
-import requests
 import platform
+
+from core.banner import banners
+from core.utils import (
+    RED,
+    RESET,
+    YELLOW,
+    back_home,
+    clear,
+    get_local_version,
+    get_remote_version,
+    info,
+    menu_option,
+    prompt,
+    show_interfaces,
+    wrong_try_again,
+)
+
 username = os.getlogin()
 if platform.system() == "Linux":
     pass
 else:
-    print("\033[91m You can't do this here :)")
+    print(f"{RED} You can't do this here :)")
     exit()
 if os.geteuid() == 0:
     pass
 else:
-    print(
-        f"\n\033[91m Hey {username}! You need root permissions to do this :)")
-    print("\n \033[00mrun sudo python3 main.py\n\n\n")
+    print(f"\n{RED} Hey {username}! You need root permissions to do this :)")
+    print(f"\n {RESET}run sudo python3 main.py\n\n\n")
     exit()
-os.system("clear")
-print("\033[91m[\033[00m*\033[91m] Checking tools version\n\033[00m")
-database_url = "https://raw.githubusercontent.com/darkhunter141/Database/main/wifihunter_update_value.json"
-version_name = requests.get(database_url).json()
-v_code = version_name["version"]
-with open("version") as version_hunter:
-    this_version = int(version_hunter.readline())
-    if this_version == v_code:
-        pass
-    else:
-        print("\033[91m[\033[00m*\033[91m] \033[93mUpdate available !\n\033[00m")
-        print("\033[91m[\033[00m*\033[91m] \033[00mPlease run python3 updatetools.py\n\n\033[00m")
-        exit()
-def main_option(no, name):
-    print(f"\n\033[91m [\033[00m{no}\033[91m] \033[93m{name}")
-from core.banner import banners
+clear()
+info("Checking tools version\n")
+v_code = get_remote_version()
+this_version = get_local_version()
+if this_version == v_code:
+    pass
+else:
+    info("Update available !\n", YELLOW)
+    info("Please run python3 updatetools.py\n\n", RESET)
+    exit()
+
+
+def monitor_mode(action, command_template):
+    banners()
+    clear()
+    show_interfaces()
+    print("\n")
+    info(f"Type your wireless interface to {action} monitor mode")
+    print("\n")
+    interface = prompt()
+    os.system(command_template.format(interface))
+    back_home()
+
+
 banners()
-main_option(1, "Install Wireless-tools (Install First)")
-main_option(2, "Wifi Spam")
-main_option(3, "Start monitor mode")
-main_option(4, "Stop monitor mode")
-main_option(0, "Exit")
-option = int(input("\n\n\033[92m ͟w͟i͟f͟i͟-͟h͟u͟n͟t͟e͟r͟ > "))
+menu_option(1, "Install Wireless-tools (Install First)")
+menu_option(2, "Wifi Spam")
+menu_option(3, "Start monitor mode")
+menu_option(4, "Stop monitor mode")
+menu_option(0, "Exit")
+option = int(prompt())
 if option == 1:
     os.system("sudo python3 core/menu_install_tools.py")
 elif option == 2:
     os.system("sudo python3 core/spam_wifi.py")
 elif option == 3:
-    banners()
-    os.system('clear')
-    print('\n\n\033[92m Your interfaces : \n\033[00m')
-    os.system('bash core/interface_device.sh')
-    print('\n')
-    print(
-        "\033[91m[\033[00m*\033[91m] Type your wireless interface to start monitor mode\033[00m")
-    print("\n")
-    interface = input("\n\n\033[92m ͟w͟i͟f͟i͟-͟h͟u͟n͟t͟e͟r͟ > ")
-    command = "airmon-ng start {} && airmon-ng check kill".format(interface)
-    os.system(command)
-    print("\n\033[91m Back home (y/n) ")
-    option = input("\n\n\033[92m ͟w͟i͟f͟i͟-͟h͟u͟n͟t͟e͟r͟ > ")
-    if option == "y":
-        os.system('python3 main.py')
-    else:
-        os.system('clear')
-        print("\033[91m Wrong try again!")
-        print('\033[00m run sudo main.py\n\n\n')
+    monitor_mode("start", "airmon-ng start {} && airmon-ng check kill")
 elif option == 4:
-    banners()
-    os.system('clear')
-    print('\n\n\033[92m Your interfaces : \n\033[00m')
-    os.system('bash core/interface_device.sh')
-    print('\n')
-    print(
-        "\033[91m[\033[00m*\033[91m] Type your wireless interface to stop monitor mode\033[00m")
-    print("\n")
-    interface = input("\n\n\033[92m ͟w͟i͟f͟i͟-͟h͟u͟n͟t͟e͟r͟ > ")
-    command = "airmon-ng stop {} && service network-manager restart && systemctl start NetworkManager".format(
-        interface)
-    os.system(command)
-    print("\n\033[91m Back home (y/n) ")
-    option = input("\n\n\033[92m ͟w͟i͟f͟i͟-͟h͟u͟n͟t͟e͟r͟ > ")
-    if option == "y":
-        os.system('python3 main.py')
-    else:
-        os.system('clear')
-        print("\033[91m Wrong try again!")
-        print('\033[00m run sudo main.py\n\n\n')
-
+    monitor_mode(
+        "stop",
+        "airmon-ng stop {} && service network-manager restart"
+        " && systemctl start NetworkManager",
+    )
 elif option == 0:
-    os.system('clear')
-    print("\033[91m Wrong try again!")
-    print('\033[00m run sudo main.py\n\n\n')
+    wrong_try_again()
     exit()
 else:
-    os.system('clear')
-    print("\033[91m Wrong try again!")
-    print('\033[00m run sudo main.py\n\n\n')
+    wrong_try_again()
     exit()
