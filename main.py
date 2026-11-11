@@ -1,6 +1,20 @@
 import os
+import re
+import subprocess
 import requests
 import platform
+
+INTERFACE_RE = re.compile(r"^[A-Za-z0-9._-]{1,32}$")
+
+
+def validate_interface(name):
+    name = name.strip()
+    if not INTERFACE_RE.match(name):
+        print("\033[91m[!] Invalid interface name. Only letters, digits, '.', '_' and '-' are allowed.\033[00m")
+        exit(1)
+    return name
+
+
 username = os.getlogin()
 if platform.system() == "Linux":
     pass
@@ -17,8 +31,12 @@ else:
 os.system("clear")
 print("\033[91m[\033[00m*\033[91m] Checking tools version\n\033[00m")
 database_url = "https://raw.githubusercontent.com/darkhunter141/Database/main/wifihunter_update_value.json"
-version_name = requests.get(database_url).json()
-v_code = version_name["version"]
+try:
+    version_name = requests.get(database_url, timeout=10).json()
+    v_code = version_name["version"]
+except (requests.RequestException, ValueError, KeyError):
+    print("\033[91m[!] Could not check for updates (network error).\033[00m")
+    exit(1)
 with open("version") as version_hunter:
     this_version = int(version_hunter.readline())
     if this_version == v_code:
@@ -36,7 +54,13 @@ main_option(2, "Wifi Spam")
 main_option(3, "Start monitor mode")
 main_option(4, "Stop monitor mode")
 main_option(0, "Exit")
-option = int(input("\n\n\033[92m ͟w͟i͟f͟i͟-͟h͟u͟n͟t͟e͟r͟ > "))
+try:
+    option = int(input("\n\n\033[92m ͟w͟i͟f͟i͟-͟h͟u͟n͟t͟e͟r͟ > "))
+except ValueError:
+    os.system('clear')
+    print("\033[91m Wrong try again!")
+    print('\033[00m run sudo main.py\n\n\n')
+    exit()
 if option == 1:
     os.system("sudo python3 core/menu_install_tools.py")
 elif option == 2:
@@ -50,9 +74,9 @@ elif option == 3:
     print(
         "\033[91m[\033[00m*\033[91m] Type your wireless interface to start monitor mode\033[00m")
     print("\n")
-    interface = input("\n\n\033[92m ͟w͟i͟f͟i͟-͟h͟u͟n͟t͟e͟r͟ > ")
-    command = "airmon-ng start {} && airmon-ng check kill".format(interface)
-    os.system(command)
+    interface = validate_interface(input("\n\n\033[92m ͟w͟i͟f͟i͟-͟h͟u͟n͟t͟e͟r͟ > "))
+    subprocess.run(["airmon-ng", "start", interface])
+    subprocess.run(["airmon-ng", "check", "kill"])
     print("\n\033[91m Back home (y/n) ")
     option = input("\n\n\033[92m ͟w͟i͟f͟i͟-͟h͟u͟n͟t͟e͟r͟ > ")
     if option == "y":
@@ -70,10 +94,10 @@ elif option == 4:
     print(
         "\033[91m[\033[00m*\033[91m] Type your wireless interface to stop monitor mode\033[00m")
     print("\n")
-    interface = input("\n\n\033[92m ͟w͟i͟f͟i͟-͟h͟u͟n͟t͟e͟r͟ > ")
-    command = "airmon-ng stop {} && service network-manager restart && systemctl start NetworkManager".format(
-        interface)
-    os.system(command)
+    interface = validate_interface(input("\n\n\033[92m ͟w͟i͟f͟i͟-͟h͟u͟n͟t͟e͟r͟ > "))
+    subprocess.run(["airmon-ng", "stop", interface])
+    subprocess.run(["service", "network-manager", "restart"])
+    subprocess.run(["systemctl", "start", "NetworkManager"])
     print("\n\033[91m Back home (y/n) ")
     option = input("\n\n\033[92m ͟w͟i͟f͟i͟-͟h͟u͟n͟t͟e͟r͟ > ")
     if option == "y":
